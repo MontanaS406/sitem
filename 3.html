@@ -1,0 +1,90 @@
+<!DOCTYPE html> 
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Fotoğraflarım</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #121212;
+            color: red;
+            font-family: 'Segoe UI', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        a {
+            color: red;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            color: red;
+            margin-bottom: 30px;
+        }
+
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .gallery img {
+            width: 300px;
+            border-radius: 10px;
+            border: 2px solid red;
+            transition: transform 0.3s;
+        }
+
+        .gallery img:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Fotoğraflarım</h1>
+
+    <p><a href="index.html">← Ana Sayfaya Dön</a></p>
+
+    <div class="gallery">
+        <img src="ben.jpg" alt="Foto 1">
+        <img src="ben2.jpeg" alt="Foto 2">
+        <img src="ben3.jpeg" alt="Foto 3">
+        <img src="ben4.jpeg" alt="Foto 4">
+        <img src="ben5.jpeg" alt="Foto 5">
+        <img src="ben6.jpeg" alt="Foto 6">
+        <img src="ben7.jpeg" alt="Foto 7">
+        <img src="ben8.jpeg" alt="Foto 8">
+        <img src="ben9.jpeg" alt="Foto 9">
+        <img src="ben10.jpeg" alt="Foto 10">
+        <img src="ben11.jpeg" alt="Foto 11">
+    </div>
+
+    <script>
+      const imgs = document.querySelectorAll('.gallery img');
+      let hue = 0;
+
+      function animateBorders() {
+        hue += 1;
+        if (hue > 360) hue = 0;
+        const color = `hsl(${hue}, 100%, 50%)`;
+        imgs.forEach(img => {
+          img.style.borderColor = color;
+        });
+        requestAnimationFrame(animateBorders);
+      }
+
+      animateBorders();
+    </script>
+
+</body>
+</html>

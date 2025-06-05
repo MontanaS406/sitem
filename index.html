@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Ana Sayfa</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: red;
+            font-family: 'Segoe UI', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-top: 40px;
+        }
+
+        p {
+            font-size: 18px;
+            max-width: 700px;
+            margin: 10px auto;
+        }
+
+        a {
+            color: red;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        button {
+            background-color: #1e1e1e;
+            color: red;
+            border: 2px solid red;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        button:hover {
+            background-color: red;
+            color: #121212;
+        }
+
+        .info-box {
+            border: 2px solid red;
+            padding: 20px;
+            border-radius: 12px;
+            background-color: #1e1e1e;
+            margin-top: 30px;
+            transition: border-color 0.3s;
+        }
+
+        audio {
+            margin-top: 15px;
+        }
+
+        /* Canvas arkaplan için */
+        #snakeCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="snakeCanvas"></canvas>
+
+    <h1>Merhaba!</h1>
+    <p>Dünyaca ünlü KAAN ÇAĞATAY'ı tanımak için bu siteye göz atabilirsin!.</p>
+
+    <img src="ben.jpg" alt="Benim Fotoğrafım" width="300" />
+
+    <p><a href="2.html">Hakkımda Sayfası</a></p>
+    <p><a href="3.html">Fotoğraflarım</a></p>
+
+    <br /><br />
+
+    <button onclick="alert('İnstagram : cagataykaanc')">Bana Tıkla</button>
+
+    <br /><br />
+
+    <div class="info-box">
+        instagram : cagataykaanc &nbsp;&nbsp; snapchat : kaancagatayy &nbsp;&nbsp; twitter : cagataykaanc &nbsp;&nbsp; youtube : @studio4062
+
+        <br /><br />
+
+        <audio controls autoplay loop>
+            <source src="muzik.mp3" type="audio/mpeg" />
+            Tarayıcınız bu ses öğesini desteklemiyor.
+        </audio>
+    </div>
+
+<script>
+const canvas = document.getElementById('snakeCanvas');
+const ctx = canvas.getContext('2d');
+
+let width, height;
+function resize() {
+  width = window.innerWidth;
+  height = window.innerHeight;
+  canvas.width = width;
+  canvas.height = height;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const segmentSize = 40;
+const maxSegments = 60;
+const speed = 3;
+const maxTurnRate = 0.1;
+const snakeCount = 8;
+
+function HSVtoRGB(h, s, v) {
+  let c = v * s;
+  let x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  let m = v - c;
+  let r, g, b;
+  if(h >=0 && h < 60) [r,g,b] = [c,x,0];
+  else if(h < 120) [r,g,b] = [x,c,0];
+  else if(h < 180) [r,g,b] = [0,c,x];
+  else if(h < 240) [r,g,b] = [0,x,c];
+  else if(h < 300) [r,g,b] = [x,0,c];
+  else [r,g,b] = [c,0,x];
+  r = Math.floor((r + m)*255);
+  g = Math.floor((g + m)*255);
+  b = Math.floor((b + m)*255);
+  return `rgb(${r},${g},${b})`;
+}
+
+function createSnake(startX, startY, startHue) {
+  return {
+    pos: { x: startX, y: startY },
+    angle: Math.random() * Math.PI * 2,
+    hue: startHue,
+    snake: [],
+  };
+}
+
+const snakes = [];
+for(let i = 0; i < snakeCount; i++) {
+  let startX = Math.random() * window.innerWidth;
+  let startY = Math.random() * window.innerHeight;
+  let startHue = (i * 360 / snakeCount) % 360;
+  snakes.push(createSnake(startX, startY, startHue));
+}
+
+function updateSnake(snakeObj) {
+  let turn = (Math.random() * 2 - 1) * maxTurnRate;
+  snakeObj.angle += turn;
+
+  snakeObj.pos.x += Math.cos(snakeObj.angle) * speed;
+  snakeObj.pos.y += Math.sin(snakeObj.angle) * speed;
+
+  if(snakeObj.pos.x > width) snakeObj.pos.x = 0;
+  if(snakeObj.pos.x < 0) snakeObj.pos.x = width;
+  if(snakeObj.pos.y > height) snakeObj.pos.y = 0;
+  if(snakeObj.pos.y < 0) snakeObj.pos.y = height;
+
+  snakeObj.snake.push({ x: snakeObj.pos.x, y: snakeObj.pos.y, color: HSVtoRGB(snakeObj.hue, 1, 1) });
+  if(snakeObj.snake.length > maxSegments) snakeObj.snake.shift();
+
+  snakeObj.hue += 1.5;
+  if(snakeObj.hue >= 360) snakeObj.hue = 0;
+}
+
+function drawSnake(snakeObj) {
+  for(let i = 0; i < snakeObj.snake.length; i++) {
+    const segment = snakeObj.snake[i];
+    let size = segmentSize * (i / maxSegments);
+    if(size < 6) size = 6;
+
+    ctx.fillStyle = segment.color;
+    ctx.beginPath();
+    ctx.arc(segment.x, segment.y, size / 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function loop() {
+  ctx.clearRect(0, 0, width, height);
+  for(let i = 0; i < snakes.length; i++) {
+    updateSnake(snakes[i]);
+    drawSnake(snakes[i]);
+  }
+  requestAnimationFrame(loop);
+}
+
+loop();
+
+// Renk değiştiren kırmızı çerçeve için animasyon:
+const button = document.querySelector('button');
+const infoBox = document.querySelector('.info-box');
+
+let hue = 0;
+function animateBorders() {
+  hue += 1;
+  if(hue > 360) hue = 0;
+  const color = `hsl(${hue}, 100%, 50%)`;
+
+  button.style.borderColor = color;
+  button.style.color = color;
+  infoBox.style.borderColor = color;
+
+  // Button hover background color canlı olsun diye alttan kırmızı:
+  if(document.activeElement !== button) {
+    button.style.backgroundColor = '#1e1e1e';
+  }
+
+  requestAnimationFrame(animateBorders);
+}
+animateBorders();
+</script>
+
+</body>
+</html>
